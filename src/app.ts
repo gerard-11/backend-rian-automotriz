@@ -7,7 +7,11 @@ import { corsOptions } from "./config/cors.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { notFoundHandler } from "./middleware/not-found.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
+import { budgetsRouter } from "./modules/budgets/budgets.routes.js";
 import { customersRouter } from "./modules/customers/customers.routes.js";
+import { expensesRouter } from "./modules/expenses/expenses.routes.js";
+import { vehiclesRouter } from "./modules/vehicles/vehicles.routes.js";
+import { workOrdersRouter } from "./modules/work-orders/work-orders.routes.js";
 import { healthRouter } from "./routes/health.routes.js";
 
 export const app = express();
@@ -28,8 +32,12 @@ app.use(
 );
 
 app.use("/auth", authRouter);
+app.use("/budgets", budgetsRouter);
 app.use("/customers", customersRouter);
+app.use("/expenses", expensesRouter);
 app.use("/health", healthRouter);
+app.use("/vehicles", vehiclesRouter);
+app.use("/work-orders", workOrdersRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
