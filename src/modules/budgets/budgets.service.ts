@@ -1,7 +1,10 @@
 import { prisma } from "../../db/prisma.js";
 import { HttpError } from "../../lib/http-error.js";
+import {
+  calculateServiceItemTotals,
+  money,
+} from "../service-items/service-items.utils.js";
 import type {
-  BudgetItemInput,
   ConvertBudgetInput,
   CreateBudgetInput,
   ListBudgetsQuery,
@@ -62,8 +65,6 @@ const budgetSelect = {
   },
 } as const;
 
-const money = (value: number) => value.toFixed(2);
-
 const getDefaultValidUntil = () =>
   new Date(Date.now() + BUDGET_VALID_DAYS * DAY_IN_MS);
 
@@ -83,20 +84,6 @@ const expireOverdueBudgets = async () => {
     },
     data: { status: "EXPIRED" },
   });
-};
-
-const calculateTotals = (items: BudgetItemInput[]) => {
-  const totalSaleAmount = items.reduce((sum, item) => sum + item.saleAmount, 0);
-  const totalCostAmount = items.reduce(
-    (sum, item) => sum + (item.costAmount ?? 0),
-    0,
-  );
-
-  return {
-    totalSaleAmount: money(totalSaleAmount),
-    totalCostAmount: money(totalCostAmount),
-    estimatedProfitAmount: money(totalSaleAmount - totalCostAmount),
-  };
 };
 
 const assertVehicleBelongsToCustomer = async (
@@ -119,7 +106,7 @@ const assertVehicleBelongsToCustomer = async (
 
 export const createBudget = async (input: CreateBudgetInput) => {
   await assertVehicleBelongsToCustomer(input.customerId, input.vehicleId);
-  const totals = calculateTotals(input.items);
+  const totals = calculateServiceItemTotals(input.items);
 
   return prisma.budget.create({
     data: {
@@ -128,7 +115,9 @@ export const createBudget = async (input: CreateBudgetInput) => {
       diagnosis: input.diagnosis,
       notes: input.notes,
       validUntil: input.validUntil ?? getDefaultValidUntil(),
-      ...totals,
+      totalSaleAmount: totals.totalSaleAmount,
+      totalCostAmount: totals.totalCostAmount,
+      estimatedProfitAmount: totals.profitAmount,
       items: {
         create: input.items.map((item) => ({
           type: item.type,
@@ -204,10 +193,15 @@ export const updateBudget = async (id: string, input: UpdateBudgetInput) => {
     }
 
     if (budget.status === "EXPIRED") {
-      throw new HttpError(409, "Expired budgets must be reopened before update");
+      throw new HttpError(
+        409,
+        "Expired budgets must be reopened before update",
+      );
     }
 
-    const totals = input.items ? calculateTotals(input.items) : {};
+    const totals = input.items
+      ? calculateServiceItemTotals(input.items)
+      : undefined;
 
     if (input.items) {
       await tx.budgetItem.deleteMany({ where: { budgetId: id } });
@@ -219,7 +213,9 @@ export const updateBudget = async (id: string, input: UpdateBudgetInput) => {
         diagnosis: input.diagnosis,
         notes: input.notes,
         validUntil: input.validUntil,
-        ...totals,
+        totalSaleAmount: totals?.totalSaleAmount,
+        totalCostAmount: totals?.totalCostAmount,
+        estimatedProfitAmount: totals?.profitAmount,
         items: input.items
           ? {
               create: input.items.map((item) => ({
@@ -335,7 +331,10 @@ export const convertBudgetToWorkOrder = async (
     }
 
     if (budget.status === "REJECTED" || budget.status === "EXPIRED") {
-      throw new HttpError(409, "Only pending or accepted budgets can be converted");
+      throw new HttpError(
+        409,
+        "Only pending or accepted budgets can be converted",
+      );
     }
 
     const now = new Date();

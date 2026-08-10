@@ -1,11 +1,14 @@
 import { prisma } from "../../db/prisma.js";
 import { HttpError } from "../../lib/http-error.js";
+import {
+  calculateServiceItemTotals,
+  money,
+} from "../service-items/service-items.utils.js";
 import type {
   CreateQuickWorkOrderInput,
   CreateWorkOrderInput,
   ListWorkOrdersQuery,
   UpdateWorkOrderInput,
-  WorkOrderItemInput,
 } from "./work-orders.schemas.js";
 
 export const workOrderSelect = {
@@ -64,22 +67,6 @@ export const workOrderSelect = {
   },
 } as const;
 
-const money = (value: number) => value.toFixed(2);
-
-const calculateTotals = (items: WorkOrderItemInput[]) => {
-  const totalSaleAmount = items.reduce((sum, item) => sum + item.saleAmount, 0);
-  const totalCostAmount = items.reduce(
-    (sum, item) => sum + (item.costAmount ?? 0),
-    0,
-  );
-
-  return {
-    totalSaleAmount: money(totalSaleAmount),
-    totalCostAmount: money(totalCostAmount),
-    grossProfitAmount: money(totalSaleAmount - totalCostAmount),
-  };
-};
-
 const assertVehicleBelongsToCustomer = async (
   customerId: string,
   vehicleId: string,
@@ -100,7 +87,7 @@ const assertVehicleBelongsToCustomer = async (
 
 export const createWorkOrder = async (input: CreateWorkOrderInput) => {
   await assertVehicleBelongsToCustomer(input.customerId, input.vehicleId);
-  const totals = calculateTotals(input.items);
+  const totals = calculateServiceItemTotals(input.items);
 
   return prisma.workOrder.create({
     data: {
@@ -109,7 +96,9 @@ export const createWorkOrder = async (input: CreateWorkOrderInput) => {
       diagnosis: input.diagnosis,
       notes: input.notes,
       advanceAmount: money(input.advanceAmount ?? 0),
-      ...totals,
+      totalSaleAmount: totals.totalSaleAmount,
+      totalCostAmount: totals.totalCostAmount,
+      grossProfitAmount: totals.profitAmount,
       items: {
         create: input.items.map((item) => ({
           type: item.type,
@@ -125,8 +114,10 @@ export const createWorkOrder = async (input: CreateWorkOrderInput) => {
   });
 };
 
-export const createQuickWorkOrder = async (input: CreateQuickWorkOrderInput) => {
-  const totals = calculateTotals(input.items);
+export const createQuickWorkOrder = async (
+  input: CreateQuickWorkOrderInput,
+) => {
+  const totals = calculateServiceItemTotals(input.items);
 
   return prisma.$transaction(async (tx) => {
     const customer = await tx.customer.create({
@@ -149,14 +140,18 @@ export const createQuickWorkOrder = async (input: CreateQuickWorkOrderInput) => 
         diagnosis: input.diagnosis,
         notes: input.notes,
         advanceAmount: money(input.advanceAmount ?? 0),
-        ...totals,
+        totalSaleAmount: totals.totalSaleAmount,
+        totalCostAmount: totals.totalCostAmount,
+        grossProfitAmount: totals.profitAmount,
         items: {
           create: input.items.map((item) => ({
             type: item.type,
             description: item.description,
             saleAmount: money(item.saleAmount),
             costAmount:
-              item.costAmount === undefined ? undefined : money(item.costAmount),
+              item.costAmount === undefined
+                ? undefined
+                : money(item.costAmount),
             notes: item.notes,
           })),
         },
@@ -224,7 +219,9 @@ export const updateWorkOrder = async (
       throw new HttpError(409, "Only active work orders can be updated");
     }
 
-    const totals = input.items ? calculateTotals(input.items) : {};
+    const totals = input.items
+      ? calculateServiceItemTotals(input.items)
+      : undefined;
 
     if (input.items) {
       await tx.workOrderItem.deleteMany({ where: { workOrderId: id } });
@@ -239,7 +236,9 @@ export const updateWorkOrder = async (
           input.advanceAmount === undefined
             ? undefined
             : money(input.advanceAmount),
-        ...totals,
+        totalSaleAmount: totals?.totalSaleAmount,
+        totalCostAmount: totals?.totalCostAmount,
+        grossProfitAmount: totals?.profitAmount,
         items: input.items
           ? {
               create: input.items.map((item) => ({
