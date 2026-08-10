@@ -7,6 +7,7 @@ import {
 import type {
   ConvertBudgetInput,
   CreateBudgetInput,
+  CreateQuickBudgetInput,
   ListBudgetsQuery,
   ReopenBudgetInput,
   UpdateBudgetInput,
@@ -130,6 +131,48 @@ export const createBudget = async (input: CreateBudgetInput) => {
       },
     },
     select: budgetSelect,
+  });
+};
+
+export const createQuickBudget = async (input: CreateQuickBudgetInput) => {
+  const totals = calculateServiceItemTotals(input.items);
+
+  return prisma.$transaction(async (tx) => {
+    const customer = await tx.customer.create({
+      data: input.customer,
+      select: { id: true },
+    });
+
+    const vehicle = await tx.vehicle.create({
+      data: {
+        ...input.vehicle,
+        customerId: customer.id,
+      },
+      select: { id: true },
+    });
+
+    return tx.budget.create({
+      data: {
+        customerId: customer.id,
+        vehicleId: vehicle.id,
+        diagnosis: input.diagnosis,
+        notes: input.notes,
+        validUntil: input.validUntil ?? getDefaultValidUntil(),
+        totalSaleAmount: totals.totalSaleAmount,
+        totalCostAmount: totals.totalCostAmount,
+        estimatedProfitAmount: totals.profitAmount,
+        items: {
+          create: input.items.map((item) => ({
+            type: item.type,
+            description: item.description,
+            saleAmount: money(item.saleAmount),
+            costAmount: money(item.costAmount),
+            notes: item.notes,
+          })),
+        },
+      },
+      select: budgetSelect,
+    });
   });
 };
 

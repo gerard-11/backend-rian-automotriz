@@ -3,6 +3,7 @@ import {
   budgetIdParamsSchema,
   convertBudgetSchema,
   createBudgetSchema,
+  createQuickBudgetSchema,
   listBudgetsQuerySchema,
   reopenBudgetSchema,
   updateBudgetSchema,
@@ -11,6 +12,7 @@ import {
   acceptBudget,
   convertBudgetToWorkOrder,
   createBudget,
+  createQuickBudget,
   expireBudget,
   getBudgetById,
   listBudgets,
@@ -22,6 +24,13 @@ import {
 export const create: RequestHandler = async (req, res) => {
   const input = createBudgetSchema.parse(req.body);
   const budget = await createBudget(input);
+
+  res.status(201).json({ budget });
+};
+
+export const createQuickEntry: RequestHandler = async (req, res) => {
+  const input = createQuickBudgetSchema.parse(req.body);
+  const budget = await createQuickBudget(input);
 
   res.status(201).json({ budget });
 };

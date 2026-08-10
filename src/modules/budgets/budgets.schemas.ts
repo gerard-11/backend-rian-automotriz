@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   moneySchema,
   optionalDateSchema,
+  optionalEmail,
   optionalText,
 } from "../../lib/validation.js";
 
@@ -14,16 +15,17 @@ const budgetStatusSchema = z.enum([
 ]);
 
 const itemTypeSchema = z.enum(["SERVICE", "LABOR", "PART", "TIRE", "OTHER"]);
+const requiredText = z.string().trim().min(1);
 
 export const budgetIdParamsSchema = z.object({
   id: z.string().uuid(),
 });
 
 export const budgetItemSchema = z.object({
-  type: itemTypeSchema,
+  type: itemTypeSchema.default("SERVICE"),
   description: z.string().trim().min(1, "Description is required"),
   saleAmount: moneySchema,
-  costAmount: moneySchema.optional(),
+  costAmount: moneySchema.default(0),
   notes: optionalText,
 });
 
@@ -31,6 +33,38 @@ export const createBudgetSchema = z.object({
   customerId: z.string().uuid(),
   vehicleId: z.string().uuid(),
   diagnosis: optionalText,
+  notes: optionalText,
+  validUntil: optionalDateSchema,
+  items: z.array(budgetItemSchema).min(1, "At least one item is required"),
+});
+
+const quickBudgetCustomerSchema = z.object({
+  name: requiredText,
+  phone: optionalText,
+  email: optionalEmail,
+  notes: optionalText,
+});
+
+const quickBudgetVehicleSchema = z
+  .object({
+    plate: optionalText,
+    make: optionalText,
+    model: optionalText,
+    year: z.coerce.number().int().min(1900).max(2100).optional(),
+    color: optionalText,
+    notes: optionalText,
+  })
+  .refine(
+    (vehicle) => Boolean(vehicle.plate || vehicle.make || vehicle.model),
+    {
+      message: "Vehicle is required",
+    },
+  );
+
+export const createQuickBudgetSchema = z.object({
+  customer: quickBudgetCustomerSchema,
+  vehicle: quickBudgetVehicleSchema,
+  diagnosis: requiredText,
   notes: optionalText,
   validUntil: optionalDateSchema,
   items: z.array(budgetItemSchema).min(1, "At least one item is required"),
@@ -65,6 +99,7 @@ export const listBudgetsQuerySchema = z.object({
 
 export type BudgetItemInput = z.infer<typeof budgetItemSchema>;
 export type CreateBudgetInput = z.infer<typeof createBudgetSchema>;
+export type CreateQuickBudgetInput = z.infer<typeof createQuickBudgetSchema>;
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>;
 export type ConvertBudgetInput = z.infer<typeof convertBudgetSchema>;
 export type ReopenBudgetInput = z.infer<typeof reopenBudgetSchema>;
