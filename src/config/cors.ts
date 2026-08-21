@@ -1,5 +1,5 @@
 import type { CorsOptions } from "cors";
-import { env, isProduction } from "./env.js";
+import { env } from "./env.js";
 
 const allowedOrigins = env.CORS_ORIGIN.split(",")
   .map((origin) => origin.trim())
@@ -7,7 +7,7 @@ const allowedOrigins = env.CORS_ORIGIN.split(",")
 
 export const corsOptions: CorsOptions = {
   origin(origin, callback) {
-    if (!origin && !isProduction) {
+    if (!origin) {
       callback(null, true);
       return;
     }

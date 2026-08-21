@@ -1,4 +1,23 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rian_automotriz_api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rian_automotriz?schema=public
+      JWT_SECRET: local-docker-jwt-secret-change-me-32
+      CORS_ORIGIN: http://localhost:5173
+      RUN_MIGRATIONS: "true"
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     image: postgres:16-alpine
     container_name: rian_automotriz_postgres
