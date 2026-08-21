@@ -6,4 +6,5 @@ src/generated
 
 #Agents
 *.md
+!docs/**/*.md
 
