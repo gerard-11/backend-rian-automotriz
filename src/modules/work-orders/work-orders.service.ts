@@ -6,7 +6,6 @@ import {
 } from "../service-items/service-items.utils.js";
 import type {
   CreateQuickWorkOrderInput,
-  CreateWorkOrderInput,
   ListWorkOrdersQuery,
   UpdateWorkOrderInput,
 } from "./work-orders.schemas.js";
@@ -67,57 +66,11 @@ export const workOrderSelect = {
   },
 } as const;
 
-const assertVehicleBelongsToCustomer = async (
-  customerId: string,
-  vehicleId: string,
-) => {
-  const vehicle = await prisma.vehicle.findUnique({
-    where: { id: vehicleId },
-    select: { customerId: true },
-  });
-
-  if (!vehicle) {
-    throw new HttpError(404, "Vehicle not found");
-  }
-
-  if (vehicle.customerId !== customerId) {
-    throw new HttpError(400, "Vehicle does not belong to customer");
-  }
-};
-
-export const createWorkOrder = async (input: CreateWorkOrderInput) => {
-  await assertVehicleBelongsToCustomer(input.customerId, input.vehicleId);
-  const totals = calculateServiceItemTotals(input.items);
-
-  return prisma.workOrder.create({
-    data: {
-      customerId: input.customerId,
-      vehicleId: input.vehicleId,
-      diagnosis: input.diagnosis,
-      notes: input.notes,
-      advanceAmount: money(input.advanceAmount ?? 0),
-      totalSaleAmount: totals.totalSaleAmount,
-      totalCostAmount: totals.totalCostAmount,
-      grossProfitAmount: totals.profitAmount,
-      items: {
-        create: input.items.map((item) => ({
-          type: item.type,
-          description: item.description,
-          saleAmount: money(item.saleAmount),
-          costAmount:
-            item.costAmount === undefined ? undefined : money(item.costAmount),
-          notes: item.notes,
-        })),
-      },
-    },
-    select: workOrderSelect,
-  });
-};
-
 export const createQuickWorkOrder = async (
   input: CreateQuickWorkOrderInput,
 ) => {
   const totals = calculateServiceItemTotals(input.items);
+  const status = input.status ?? "ACTIVE";
 
   return prisma.$transaction(async (tx) => {
     const customer = await tx.customer.create({
@@ -137,9 +90,12 @@ export const createQuickWorkOrder = async (
       data: {
         customerId: customer.id,
         vehicleId: vehicle.id,
+        status,
         diagnosis: input.diagnosis,
         notes: input.notes,
         advanceAmount: money(input.advanceAmount ?? 0),
+        completedAt: status === "COMPLETED" ? new Date() : undefined,
+        cancelledAt: status === "CANCELLED" ? new Date() : undefined,
         totalSaleAmount: totals.totalSaleAmount,
         totalCostAmount: totals.totalCostAmount,
         grossProfitAmount: totals.profitAmount,
@@ -232,10 +188,23 @@ export const updateWorkOrder = async (
       data: {
         diagnosis: input.diagnosis,
         notes: input.notes,
+        status: input.status,
         advanceAmount:
           input.advanceAmount === undefined
             ? undefined
             : money(input.advanceAmount),
+        completedAt:
+          input.status === "COMPLETED"
+            ? new Date()
+            : input.status === "ACTIVE"
+              ? null
+              : undefined,
+        cancelledAt:
+          input.status === "CANCELLED"
+            ? new Date()
+            : input.status === "ACTIVE" || input.status === "COMPLETED"
+              ? null
+              : undefined,
         totalSaleAmount: totals?.totalSaleAmount,
         totalCostAmount: totals?.totalCostAmount,
         grossProfitAmount: totals?.profitAmount,

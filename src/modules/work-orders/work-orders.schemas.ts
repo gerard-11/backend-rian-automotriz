@@ -20,15 +20,6 @@ export const workOrderItemSchema = z.object({
   notes: optionalText,
 });
 
-export const createWorkOrderSchema = z.object({
-  customerId: z.string().uuid(),
-  vehicleId: z.string().uuid(),
-  diagnosis: optionalText,
-  notes: optionalText,
-  advanceAmount: moneySchema.optional(),
-  items: z.array(workOrderItemSchema).min(1, "At least one item is required"),
-});
-
 const quickWorkOrderCustomerSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   phone: optionalText,
@@ -48,6 +39,7 @@ const quickWorkOrderVehicleSchema = z.object({
 export const createQuickWorkOrderSchema = z.object({
   customer: quickWorkOrderCustomerSchema,
   vehicle: quickWorkOrderVehicleSchema,
+  status: workOrderStatusSchema.optional(),
   diagnosis: optionalText,
   notes: optionalText,
   advanceAmount: moneySchema.optional(),
@@ -58,6 +50,7 @@ export const updateWorkOrderSchema = z
   .object({
     diagnosis: optionalText,
     notes: optionalText,
+    status: workOrderStatusSchema.optional(),
     advanceAmount: moneySchema.optional(),
     items: z.array(workOrderItemSchema).min(1).optional(),
   })
@@ -73,7 +66,6 @@ export const listWorkOrdersQuerySchema = z.object({
 });
 
 export type WorkOrderItemInput = z.infer<typeof workOrderItemSchema>;
-export type CreateWorkOrderInput = z.infer<typeof createWorkOrderSchema>;
 export type CreateQuickWorkOrderInput = z.infer<
   typeof createQuickWorkOrderSchema
 >;

@@ -1,7 +1,6 @@
 import type { RequestHandler } from "express";
 import {
   createQuickWorkOrderSchema,
-  createWorkOrderSchema,
   listWorkOrdersQuerySchema,
   updateWorkOrderSchema,
   workOrderIdParamsSchema,
@@ -10,18 +9,10 @@ import {
   cancelWorkOrder,
   completeWorkOrder,
   createQuickWorkOrder,
-  createWorkOrder,
   getWorkOrderById,
   listWorkOrders,
   updateWorkOrder,
 } from "./work-orders.service.js";
-
-export const create: RequestHandler = async (req, res) => {
-  const input = createWorkOrderSchema.parse(req.body);
-  const workOrder = await createWorkOrder(input);
-
-  res.status(201).json({ workOrder });
-};
 
 export const createQuickEntry: RequestHandler = async (req, res) => {
   const input = createQuickWorkOrderSchema.parse(req.body);

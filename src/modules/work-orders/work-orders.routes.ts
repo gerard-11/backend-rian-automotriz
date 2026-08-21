@@ -4,7 +4,6 @@ import { requireAuth } from "../auth/auth.middleware.js";
 import {
   cancel,
   complete,
-  create,
   createQuickEntry,
   getById,
   list,
@@ -15,7 +14,6 @@ export const workOrdersRouter = Router();
 
 workOrdersRouter.use(requireAuth);
 workOrdersRouter.post("/quick-entry", asyncHandler(createQuickEntry));
-workOrdersRouter.post("/", asyncHandler(create));
 workOrdersRouter.get("/", asyncHandler(list));
 workOrdersRouter.get("/:id", asyncHandler(getById));
 workOrdersRouter.patch("/:id", asyncHandler(update));
