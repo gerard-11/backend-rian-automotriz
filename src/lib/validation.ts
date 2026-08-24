@@ -23,8 +23,31 @@ export const positiveMoneySchema = moneySchema.min(
   "Amount must be greater than 0",
 );
 
+const dateOnlyPattern = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+const parseDateInput = (value: unknown) => {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed === "") {
+    return undefined;
+  }
+
+  const match = dateOnlyPattern.exec(trimmed);
+
+  if (!match) {
+    return trimmed;
+  }
+
+  const [, year, month, day] = match;
+
+  return new Date(Number(year), Number(month) - 1, Number(day), 12);
+};
+
 export const optionalDateSchema = z.preprocess(
-  (value) =>
-    typeof value === "string" && value.trim() === "" ? undefined : value,
+  parseDateInput,
   z.coerce.date().optional(),
 );
