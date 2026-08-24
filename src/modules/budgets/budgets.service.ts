@@ -6,7 +6,6 @@ import {
 } from "../service-items/service-items.utils.js";
 import type {
   ConvertBudgetInput,
-  CreateBudgetInput,
   CreateQuickBudgetInput,
   ListBudgetsQuery,
   ReopenBudgetInput,
@@ -84,53 +83,6 @@ const expireOverdueBudgets = async () => {
       ],
     },
     data: { status: "EXPIRED" },
-  });
-};
-
-const assertVehicleBelongsToCustomer = async (
-  customerId: string,
-  vehicleId: string,
-) => {
-  const vehicle = await prisma.vehicle.findUnique({
-    where: { id: vehicleId },
-    select: { customerId: true },
-  });
-
-  if (!vehicle) {
-    throw new HttpError(404, "Vehicle not found");
-  }
-
-  if (vehicle.customerId !== customerId) {
-    throw new HttpError(400, "Vehicle does not belong to customer");
-  }
-};
-
-export const createBudget = async (input: CreateBudgetInput) => {
-  await assertVehicleBelongsToCustomer(input.customerId, input.vehicleId);
-  const totals = calculateServiceItemTotals(input.items);
-
-  return prisma.budget.create({
-    data: {
-      customerId: input.customerId,
-      vehicleId: input.vehicleId,
-      diagnosis: input.diagnosis,
-      notes: input.notes,
-      validUntil: input.validUntil ?? getDefaultValidUntil(),
-      totalSaleAmount: totals.totalSaleAmount,
-      totalCostAmount: totals.totalCostAmount,
-      estimatedProfitAmount: totals.profitAmount,
-      items: {
-        create: input.items.map((item) => ({
-          type: item.type,
-          description: item.description,
-          saleAmount: money(item.saleAmount),
-          costAmount:
-            item.costAmount === undefined ? undefined : money(item.costAmount),
-          notes: item.notes,
-        })),
-      },
-    },
-    select: budgetSelect,
   });
 };
 

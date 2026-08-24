@@ -43,15 +43,6 @@ export const budgetItemSchema = z
     }
   });
 
-export const createBudgetSchema = z.object({
-  customerId: z.string().uuid(),
-  vehicleId: z.string().uuid(),
-  diagnosis: optionalText,
-  notes: optionalText,
-  validUntil: optionalDateSchema,
-  items: z.array(budgetItemSchema).min(1, "At least one item is required"),
-});
-
 const quickBudgetCustomerSchema = z.object({
   name: requiredText,
   phone: optionalText,
@@ -112,7 +103,6 @@ export const listBudgetsQuerySchema = z.object({
 });
 
 export type BudgetItemInput = z.infer<typeof budgetItemSchema>;
-export type CreateBudgetInput = z.infer<typeof createBudgetSchema>;
 export type CreateQuickBudgetInput = z.infer<typeof createQuickBudgetSchema>;
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>;
 export type ConvertBudgetInput = z.infer<typeof convertBudgetSchema>;

@@ -2,7 +2,6 @@ import type { RequestHandler } from "express";
 import {
   budgetIdParamsSchema,
   convertBudgetSchema,
-  createBudgetSchema,
   createQuickBudgetSchema,
   listBudgetsQuerySchema,
   reopenBudgetSchema,
@@ -11,7 +10,6 @@ import {
 import {
   acceptBudget,
   convertBudgetToWorkOrder,
-  createBudget,
   createQuickBudget,
   expireBudget,
   getBudgetById,
@@ -20,13 +18,6 @@ import {
   reopenBudget,
   updateBudget,
 } from "./budgets.service.js";
-
-export const create: RequestHandler = async (req, res) => {
-  const input = createBudgetSchema.parse(req.body);
-  const budget = await createBudget(input);
-
-  res.status(201).json({ budget });
-};
 
 export const createQuickEntry: RequestHandler = async (req, res) => {
   const input = createQuickBudgetSchema.parse(req.body);
@@ -88,7 +79,7 @@ export const reopen: RequestHandler = async (req, res) => {
 
 export const convert: RequestHandler = async (req, res) => {
   const { id } = budgetIdParamsSchema.parse(req.params);
-  const input = convertBudgetSchema.parse(req.body);
+  const input = convertBudgetSchema.parse(req.body ?? {});
   const workOrder = await convertBudgetToWorkOrder(id, input);
 
   res.status(201).json({ workOrder });

@@ -4,7 +4,6 @@ import { requireAuth } from "../auth/auth.middleware.js";
 import {
   accept,
   convert,
-  create,
   createQuickEntry,
   expire,
   getById,
@@ -18,7 +17,6 @@ export const budgetsRouter = Router();
 
 budgetsRouter.use(requireAuth);
 budgetsRouter.post("/quick-entry", asyncHandler(createQuickEntry));
-budgetsRouter.post("/", asyncHandler(create));
 budgetsRouter.get("/", asyncHandler(list));
 budgetsRouter.get("/:id", asyncHandler(getById));
 budgetsRouter.patch("/:id", asyncHandler(update));
