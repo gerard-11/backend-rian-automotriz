@@ -95,10 +95,10 @@ model Budget {
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
 
-  customer   Customer       @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  vehicle    Vehicle        @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
-  items      BudgetItem[]
-  workOrder  WorkOrder?
+  customer  Customer     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  vehicle   Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  items     BudgetItem[]
+  workOrder WorkOrder?
 
   @@index([customerId])
   @@index([vehicleId])
@@ -180,4 +180,22 @@ model Expense {
   updatedAt   DateTime @updatedAt
 
   @@index([spentAt])
+}
+
+model WeeklyProfit {
+  id                String   @id @default(uuid())
+  weekStart         DateTime
+  weekEnd           DateTime
+  grossProfitAmount Decimal  @default(0) @db.Decimal(10, 2)
+  expenseAmount     Decimal  @default(0) @db.Decimal(10, 2)
+  netProfitAmount   Decimal  @default(0) @db.Decimal(10, 2)
+  workOrderCount    Int      @default(0)
+  expenseCount      Int      @default(0)
+  closedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([weekStart])
+  @@index([weekEnd])
+  @@index([closedAt])
 }

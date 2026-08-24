@@ -10,6 +10,7 @@ import { authRouter } from "./modules/auth/auth.routes.js";
 import { budgetsRouter } from "./modules/budgets/budgets.routes.js";
 import { customersRouter } from "./modules/customers/customers.routes.js";
 import { expensesRouter } from "./modules/expenses/expenses.routes.js";
+import { profitsRouter } from "./modules/profits/profits.routes.js";
 import { vehiclesRouter } from "./modules/vehicles/vehicles.routes.js";
 import { workOrdersRouter } from "./modules/work-orders/work-orders.routes.js";
 import { healthRouter } from "./routes/health.routes.js";
@@ -36,8 +37,8 @@ app.use("/budgets", budgetsRouter);
 app.use("/customers", customersRouter);
 app.use("/expenses", expensesRouter);
 app.use("/health", healthRouter);
+app.use("/profits", profitsRouter);
 app.use("/vehicles", vehiclesRouter);
 app.use("/work-orders", workOrdersRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
-
