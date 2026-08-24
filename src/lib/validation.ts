@@ -16,11 +16,12 @@ export const uuidParamSchema = z.object({
   id: z.string().uuid(),
 });
 
-export const moneySchema = z.coerce
-  .number()
-  .finite()
-  .min(0)
-  .max(9_999_999.99);
+export const moneySchema = z.coerce.number().finite().min(0).max(9_999_999.99);
+
+export const positiveMoneySchema = moneySchema.min(
+  0.01,
+  "Amount must be greater than 0",
+);
 
 export const optionalDateSchema = z.preprocess(
   (value) =>

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   moneySchema,
+  positiveMoneySchema,
   optionalDateSchema,
   optionalEmail,
   optionalText,
@@ -21,13 +22,26 @@ export const budgetIdParamsSchema = z.object({
   id: z.string().uuid(),
 });
 
-export const budgetItemSchema = z.object({
-  type: itemTypeSchema.default("SERVICE"),
-  description: z.string().trim().min(1, "Description is required"),
-  saleAmount: moneySchema,
-  costAmount: moneySchema.default(0),
-  notes: optionalText,
-});
+export const budgetItemSchema = z
+  .object({
+    type: itemTypeSchema.default("SERVICE"),
+    description: z.string().trim().min(1, "Description is required"),
+    saleAmount: positiveMoneySchema,
+    costAmount: moneySchema.default(0),
+    notes: optionalText,
+  })
+  .superRefine((item, ctx) => {
+    if (
+      (item.type === "PART" || item.type === "TIRE") &&
+      item.costAmount <= 0
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["costAmount"],
+        message: "Cost amount must be greater than 0 for parts and tires",
+      });
+    }
+  });
 
 export const createBudgetSchema = z.object({
   customerId: z.string().uuid(),

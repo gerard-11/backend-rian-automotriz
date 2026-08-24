@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-  moneySchema,
+  positiveMoneySchema,
   optionalDateSchema,
   optionalText,
 } from "../../lib/validation.js";
@@ -11,7 +11,7 @@ export const expenseIdParamsSchema = z.object({
 
 export const createExpenseSchema = z.object({
   description: z.string().trim().min(1, "Description is required"),
-  amount: moneySchema,
+  amount: positiveMoneySchema,
   spentAt: optionalDateSchema,
   notes: optionalText,
 });
