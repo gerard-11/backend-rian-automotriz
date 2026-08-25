@@ -36,7 +36,7 @@ COPY prisma ./prisma
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/src/generated ./src/generated
-COPY scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
+COPY scripts ./scripts
 
 EXPOSE 3000
 
