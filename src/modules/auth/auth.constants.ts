@@ -7,7 +7,7 @@ export const AUTH_SESSION_SECONDS = 60 * 60 * 12;
 export const authCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: isProduction,
-  sameSite: "lax",
+  sameSite: isProduction ? "none" : "lax",
   path: "/",
   maxAge: AUTH_SESSION_SECONDS * 1000,
 };
@@ -15,6 +15,6 @@ export const authCookieOptions: CookieOptions = {
 export const clearAuthCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: isProduction,
-  sameSite: "lax",
+  sameSite: isProduction ? "none" : "lax",
   path: "/",
 };
