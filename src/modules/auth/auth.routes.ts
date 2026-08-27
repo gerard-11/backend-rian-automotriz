@@ -1,10 +1,19 @@
 import { Router } from "express";
 import { asyncHandler } from "../../lib/async-handler.js";
+import {
+  loginEmailRateLimit,
+  loginIpRateLimit,
+} from "../../middleware/rate-limit.js";
 import { login, logout, me } from "./auth.controller.js";
 import { requireAuth } from "./auth.middleware.js";
 
 export const authRouter = Router();
 
-authRouter.post("/login", asyncHandler(login));
+authRouter.post(
+  "/login",
+  loginIpRateLimit,
+  loginEmailRateLimit,
+  asyncHandler(login),
+);
 authRouter.post("/logout", logout);
 authRouter.get("/me", requireAuth, me);
