@@ -9,6 +9,7 @@ import {
   cancelWorkOrder,
   completeWorkOrder,
   createQuickWorkOrder,
+  deleteCancelledWorkOrder,
   getWorkOrderById,
   listWorkOrders,
   updateWorkOrder,
@@ -55,4 +56,11 @@ export const cancel: RequestHandler = async (req, res) => {
   const workOrder = await cancelWorkOrder(id);
 
   res.json({ workOrder });
+};
+
+export const remove: RequestHandler = async (req, res) => {
+  const { id } = workOrderIdParamsSchema.parse(req.params);
+  await deleteCancelledWorkOrder(id);
+
+  res.sendStatus(204);
 };

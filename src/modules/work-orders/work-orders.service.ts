@@ -262,3 +262,20 @@ export const cancelWorkOrder = async (id: string) => {
     select: workOrderSelect,
   });
 };
+
+export const deleteCancelledWorkOrder = async (id: string) => {
+  const workOrder = await prisma.workOrder.findUnique({
+    where: { id },
+    select: { status: true },
+  });
+
+  if (!workOrder) {
+    throw new HttpError(404, "Work order not found");
+  }
+
+  if (workOrder.status !== "CANCELLED") {
+    throw new HttpError(409, "Only cancelled work orders can be deleted");
+  }
+
+  await prisma.workOrder.delete({ where: { id } });
+};
