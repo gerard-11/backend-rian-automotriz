@@ -27,6 +27,7 @@ const budgetSelect = {
   totalCostAmount: true,
   estimatedProfitAmount: true,
   validUntil: true,
+  createdBy: true,
   acceptedAt: true,
   rejectedAt: true,
   convertedAt: true,
@@ -86,7 +87,10 @@ const expireOverdueBudgets = async () => {
   });
 };
 
-export const createQuickBudget = async (input: CreateQuickBudgetInput) => {
+export const createQuickBudget = async (
+  input: CreateQuickBudgetInput,
+  createdBy: string,
+) => {
   const totals = calculateServiceItemTotals(input.items);
 
   return prisma.$transaction(async (tx) => {
@@ -109,6 +113,7 @@ export const createQuickBudget = async (input: CreateQuickBudgetInput) => {
         vehicleId: vehicle.id,
         diagnosis: input.diagnosis,
         notes: input.notes,
+        createdBy,
         validUntil: input.validUntil ?? getDefaultValidUntil(),
         totalSaleAmount: totals.totalSaleAmount,
         totalCostAmount: totals.totalCostAmount,
@@ -308,6 +313,7 @@ export const reopenBudget = async (id: string, input: ReopenBudgetInput) => {
 export const convertBudgetToWorkOrder = async (
   id: string,
   input: ConvertBudgetInput,
+  createdBy: string,
 ) => {
   await expireOverdueBudgets();
 
@@ -340,6 +346,7 @@ export const convertBudgetToWorkOrder = async (
         budgetId: budget.id,
         diagnosis: budget.diagnosis,
         notes: input.notes ?? budget.notes,
+        createdBy,
         advanceAmount: money(input.advanceAmount ?? 0),
         totalSaleAmount: budget.totalSaleAmount,
         totalCostAmount: budget.totalCostAmount,
@@ -380,6 +387,7 @@ export const convertBudgetToWorkOrder = async (
         status: true,
         diagnosis: true,
         notes: true,
+        createdBy: true,
         advanceAmount: true,
         totalSaleAmount: true,
         totalCostAmount: true,

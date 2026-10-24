@@ -19,6 +19,7 @@ export const workOrderSelect = {
   status: true,
   diagnosis: true,
   notes: true,
+  createdBy: true,
   advanceAmount: true,
   totalSaleAmount: true,
   totalCostAmount: true,
@@ -68,6 +69,7 @@ export const workOrderSelect = {
 
 export const createQuickWorkOrder = async (
   input: CreateQuickWorkOrderInput,
+  createdBy: string,
 ) => {
   const totals = calculateServiceItemTotals(input.items);
   const status = input.status ?? "ACTIVE";
@@ -93,6 +95,7 @@ export const createQuickWorkOrder = async (
         status,
         diagnosis: input.diagnosis,
         notes: input.notes,
+        createdBy,
         advanceAmount: money(input.advanceAmount ?? 0),
         completedAt: status === "COMPLETED" ? new Date() : undefined,
         cancelledAt: status === "CANCELLED" ? new Date() : undefined,

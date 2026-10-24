@@ -21,7 +21,7 @@ import {
 
 export const createQuickEntry: RequestHandler = async (req, res) => {
   const input = createQuickBudgetSchema.parse(req.body);
-  const budget = await createQuickBudget(input);
+  const budget = await createQuickBudget(input, req.user!.name);
 
   res.status(201).json({ budget });
 };
@@ -80,7 +80,7 @@ export const reopen: RequestHandler = async (req, res) => {
 export const convert: RequestHandler = async (req, res) => {
   const { id } = budgetIdParamsSchema.parse(req.params);
   const input = convertBudgetSchema.parse(req.body ?? {});
-  const workOrder = await convertBudgetToWorkOrder(id, input);
+  const workOrder = await convertBudgetToWorkOrder(id, input, req.user!.name);
 
   res.status(201).json({ workOrder });
 };

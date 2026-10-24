@@ -16,7 +16,7 @@ import {
 
 export const createQuickEntry: RequestHandler = async (req, res) => {
   const input = createQuickWorkOrderSchema.parse(req.body);
-  const workOrder = await createQuickWorkOrder(input);
+  const workOrder = await createQuickWorkOrder(input, req.user!.name);
 
   res.status(201).json({ workOrder });
 };
