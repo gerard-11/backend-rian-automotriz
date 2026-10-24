@@ -50,21 +50,14 @@ const quickBudgetCustomerSchema = z.object({
   notes: optionalText,
 });
 
-const quickBudgetVehicleSchema = z
-  .object({
-    plate: optionalText,
-    make: optionalText,
-    model: optionalText,
-    year: z.coerce.number().int().min(1900).max(2100).optional(),
-    color: optionalText,
-    notes: optionalText,
-  })
-  .refine(
-    (vehicle) => Boolean(vehicle.plate || vehicle.make || vehicle.model),
-    {
-      message: "Vehicle is required",
-    },
-  );
+const quickBudgetVehicleSchema = z.object({
+  plate: optionalText,
+  make: optionalText,
+  model: optionalText,
+  year: z.coerce.number().int().min(1900).max(2100).optional(),
+  color: optionalText,
+  notes: optionalText,
+});
 
 export const createQuickBudgetSchema = z.object({
   customer: quickBudgetCustomerSchema,

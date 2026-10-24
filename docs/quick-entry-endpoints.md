@@ -90,8 +90,8 @@ await fetch(`${API_URL}/auth/login`, {
 | `color` | `string` | No | Color. |
 | `notes` | `string` | No | Notas del vehiculo. |
 
-En presupuestos quick, el vehiculo debe traer al menos uno de estos campos:
-`plate`, `make` o `model`.
+En presupuestos quick, `vehicle` puede ser un objeto vacio, igual que en
+ordenes de trabajo quick. Si se envia informacion, sus campos son opcionales.
 
 ### items
 
@@ -392,7 +392,6 @@ Casos comunes:
 | `items` viene vacio | `400 Validation error` |
 | `saleAmount` o `costAmount` negativo | `400 Validation error` |
 | `vehicle.year` menor a `1900` o mayor a `2100` | `400 Validation error` |
-| Presupuesto quick sin `vehicle.plate`, `vehicle.make` y `vehicle.model` | `400 Validation error` |
 | Presupuesto quick sin `diagnosis` | `400 Validation error` |
 | Orden quick sin `item.type` | `400 Validation error` |
 
