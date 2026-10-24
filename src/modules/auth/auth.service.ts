@@ -10,6 +10,7 @@ export type AuthenticatedUser = {
   id: string;
   name: string;
   email: string;
+  role: "ADMIN" | "EMPLOYEE";
 };
 
 type AuthTokenPayload = {
@@ -23,16 +24,19 @@ const userSelect = {
   email: true,
   passwordHash: true,
   active: true,
+  role: true,
 } as const;
 
 const toAuthenticatedUser = (user: {
   id: string;
   name: string;
   email: string;
+  role: "ADMIN" | "EMPLOYEE";
 }): AuthenticatedUser => ({
   id: user.id,
   name: user.name,
   email: user.email,
+  role: user.role,
 });
 
 export const loginAdmin = async (
@@ -90,6 +94,7 @@ export const verifyAuthToken = async (
       name: true,
       email: true,
       active: true,
+      role: true,
     },
   });
 

@@ -15,6 +15,7 @@ import { personalExpensesRouter } from "./modules/personal-expenses/personal-exp
 import { profitsRouter } from "./modules/profits/profits.routes.js";
 import { vehiclesRouter } from "./modules/vehicles/vehicles.routes.js";
 import { workOrdersRouter } from "./modules/work-orders/work-orders.routes.js";
+import { usersRouter } from "./modules/users/users.routes.js";
 import { healthRouter } from "./routes/health.routes.js";
 
 export const app = express();
@@ -39,5 +40,6 @@ app.use("/personal-expenses", personalExpensesRouter);
 app.use("/profits", profitsRouter);
 app.use("/vehicles", vehiclesRouter);
 app.use("/work-orders", workOrdersRouter);
+app.use("/users", usersRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);

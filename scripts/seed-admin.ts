@@ -44,6 +44,7 @@ const main = async () => {
       name: adminName,
       email: adminEmail,
       passwordHash,
+      role: "ADMIN",
       active: true,
     },
     select: {

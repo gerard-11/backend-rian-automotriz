@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { asyncHandler } from "../../lib/async-handler.js";
-import { requireAuth } from "../auth/auth.middleware.js";
+import { requireAuth, requireRole } from "../auth/auth.middleware.js";
 import {
   create,
   getById,
@@ -13,6 +13,7 @@ import {
 export const personalExpensesRouter = Router();
 
 personalExpensesRouter.use(requireAuth);
+personalExpensesRouter.use(requireRole("ADMIN"));
 personalExpensesRouter.post("/", asyncHandler(create));
 personalExpensesRouter.get("/", asyncHandler(list));
 personalExpensesRouter.get("/summary", asyncHandler(summary));

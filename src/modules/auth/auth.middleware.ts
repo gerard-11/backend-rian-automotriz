@@ -19,3 +19,13 @@ export const requireAuth: RequestHandler = (req, _res, next) => {
     })
     .catch(next);
 };
+
+export const requireRole = (...allowedRoles: Array<"ADMIN" | "EMPLOYEE">): RequestHandler =>
+  (req, _res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      next(new HttpError(403, "Insufficient permissions"));
+      return;
+    }
+
+    next();
+  };
