@@ -7,6 +7,7 @@ import {
   createQuickEntry,
   getById,
   list,
+  remove,
   update,
 } from "./work-orders.controller.js";
 
@@ -17,5 +18,6 @@ workOrdersRouter.post("/quick-entry", asyncHandler(createQuickEntry));
 workOrdersRouter.get("/", asyncHandler(list));
 workOrdersRouter.get("/:id", asyncHandler(getById));
 workOrdersRouter.patch("/:id", asyncHandler(update));
+workOrdersRouter.delete("/:id", asyncHandler(remove));
 workOrdersRouter.post("/:id/complete", asyncHandler(complete));
 workOrdersRouter.post("/:id/cancel", asyncHandler(cancel));
