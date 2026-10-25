@@ -6,6 +6,7 @@ import {
   listBudgetsQuerySchema,
   reopenBudgetSchema,
   updateBudgetSchema,
+  updateBudgetStatusSchema,
 } from "./budgets.schemas.js";
 import {
   acceptBudget,
@@ -44,6 +45,14 @@ export const update: RequestHandler = async (req, res) => {
   const { id } = budgetIdParamsSchema.parse(req.params);
   const input = updateBudgetSchema.parse(req.body);
   const budget = await updateBudget(id, input);
+
+  res.json({ budget });
+};
+
+export const updateStatus: RequestHandler = async (req, res) => {
+  const { id } = budgetIdParamsSchema.parse(req.params);
+  updateBudgetStatusSchema.parse(req.body);
+  const budget = await rejectBudget(id);
 
   res.json({ budget });
 };

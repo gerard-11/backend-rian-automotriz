@@ -79,6 +79,10 @@ export const updateBudgetSchema = z
     message: "At least one field is required",
   });
 
+export const updateBudgetStatusSchema = z.object({
+  status: z.literal("REJECTED"),
+});
+
 export const convertBudgetSchema = z.object({
   advanceAmount: moneySchema.optional(),
   notes: optionalText,
@@ -98,6 +102,7 @@ export const listBudgetsQuerySchema = z.object({
 export type BudgetItemInput = z.infer<typeof budgetItemSchema>;
 export type CreateQuickBudgetInput = z.infer<typeof createQuickBudgetSchema>;
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>;
+export type UpdateBudgetStatusInput = z.infer<typeof updateBudgetStatusSchema>;
 export type ConvertBudgetInput = z.infer<typeof convertBudgetSchema>;
 export type ReopenBudgetInput = z.infer<typeof reopenBudgetSchema>;
 export type ListBudgetsQuery = z.infer<typeof listBudgetsQuerySchema>;
