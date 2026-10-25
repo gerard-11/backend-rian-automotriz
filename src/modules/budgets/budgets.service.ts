@@ -66,6 +66,22 @@ const budgetSelect = {
   },
 } as const;
 
+export const presentBudgetForEmployee = <
+  T extends {
+    totalCostAmount: unknown;
+    estimatedProfitAmount: unknown;
+    items: Array<{ costAmount: unknown }>;
+  },
+>(budget: T) => {
+  const { totalCostAmount, estimatedProfitAmount, items, ...visibleBudget } =
+    budget;
+
+  return {
+    ...visibleBudget,
+    items: items.map(({ costAmount, ...visibleItem }) => visibleItem),
+  };
+};
+
 const getDefaultValidUntil = () =>
   new Date(Date.now() + BUDGET_VALID_DAYS * DAY_IN_MS);
 

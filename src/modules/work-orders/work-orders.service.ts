@@ -67,6 +67,22 @@ export const workOrderSelect = {
   },
 } as const;
 
+export const presentWorkOrderForEmployee = <
+  T extends {
+    totalCostAmount: unknown;
+    grossProfitAmount: unknown;
+    items: Array<{ costAmount: unknown }>;
+  },
+>(workOrder: T) => {
+  const { totalCostAmount, grossProfitAmount, items, ...visibleWorkOrder } =
+    workOrder;
+
+  return {
+    ...visibleWorkOrder,
+    items: items.map(({ costAmount, ...visibleItem }) => visibleItem),
+  };
+};
+
 export const createQuickWorkOrder = async (
   input: CreateQuickWorkOrderInput,
   createdBy: string,
@@ -120,7 +136,10 @@ export const createQuickWorkOrder = async (
   });
 };
 
-export const listWorkOrders = (query: ListWorkOrdersQuery) => {
+export const listWorkOrders = (
+  query: ListWorkOrdersQuery,
+  role: "ADMIN" | "EMPLOYEE" = "ADMIN",
+) => {
   const search = query.search?.trim();
   const folio = search && /^\d+$/.test(search) ? Number(search) : undefined;
 
@@ -129,6 +148,7 @@ export const listWorkOrders = (query: ListWorkOrdersQuery) => {
       customerId: query.customerId,
       vehicleId: query.vehicleId,
       status: query.status,
+      ...(role === "EMPLOYEE" ? { NOT: { status: "COMPLETED" as const } } : {}),
       ...(search
         ? {
             OR: [
@@ -147,7 +167,10 @@ export const listWorkOrders = (query: ListWorkOrdersQuery) => {
   });
 };
 
-export const getWorkOrderById = async (id: string) => {
+export const getWorkOrderById = async (
+  id: string,
+  role: "ADMIN" | "EMPLOYEE" = "ADMIN",
+) => {
   const workOrder = await prisma.workOrder.findUnique({
     where: { id },
     select: workOrderSelect,
@@ -155,6 +178,10 @@ export const getWorkOrderById = async (id: string) => {
 
   if (!workOrder) {
     throw new HttpError(404, "Work order not found");
+  }
+
+  if (role === "EMPLOYEE" && workOrder.status === "COMPLETED") {
+    throw new HttpError(403, "Employees cannot view completed work orders");
   }
 
   return workOrder;
