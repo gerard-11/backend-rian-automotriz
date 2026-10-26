@@ -7,7 +7,17 @@ import {
 } from "../../lib/validation.js";
 
 const workOrderStatusSchema = z.enum(["ACTIVE", "COMPLETED", "CANCELLED"]);
-const itemTypeSchema = z.enum(["SERVICE", "LABOR", "PART", "TIRE", "OTHER"]);
+const itemTypeSchema = z.enum([
+  "SERVICE",
+  "LABOR",
+  "PART",
+  "TIRE",
+  "OTHER",
+  "BALANCE",
+  "ALIGNMENT",
+  "ALIGNMENT_BALANCE",
+  "TUNE_UP",
+]);
 
 export const workOrderIdParamsSchema = z.object({
   id: z.string().uuid(),

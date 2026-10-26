@@ -27,6 +27,10 @@ enum ItemType {
   PART
   TIRE
   OTHER
+  BALANCE
+  ALIGNMENT
+  ALIGNMENT_BALANCE
+  TUNE_UP
 }
 
 enum UserRole {

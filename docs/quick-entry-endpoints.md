@@ -99,7 +99,7 @@ Debe enviarse al menos un item.
 
 | Campo | Tipo | Requerido | Notas |
 | --- | --- | --- | --- |
-| `type` | enum | Depende | Valores: `SERVICE`, `LABOR`, `PART`, `TIRE`, `OTHER`. En presupuestos tiene default `SERVICE`; en ordenes de trabajo es requerido. |
+| `type` | enum | Depende | Valores: `SERVICE`, `LABOR`, `PART`, `TIRE`, `OTHER`, `BALANCE`, `ALIGNMENT`, `ALIGNMENT_BALANCE`, `TUNE_UP`. En presupuestos tiene default `SERVICE`; en ordenes de trabajo es requerido. |
 | `description` | `string` | Si | No puede venir vacio. |
 | `saleAmount` | `number` | Si | Numero entre `0` y `9999999.99`. Tambien acepta string numerico. |
 | `costAmount` | `number` | No | Numero entre `0` y `9999999.99`. En presupuestos tiene default `0`; en ordenes de trabajo puede omitirse. |

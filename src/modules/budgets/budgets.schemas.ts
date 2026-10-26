@@ -15,7 +15,17 @@ const budgetStatusSchema = z.enum([
   "CONVERTED",
 ]);
 
-const itemTypeSchema = z.enum(["SERVICE", "LABOR", "PART", "TIRE", "OTHER"]);
+const itemTypeSchema = z.enum([
+  "SERVICE",
+  "LABOR",
+  "PART",
+  "TIRE",
+  "OTHER",
+  "BALANCE",
+  "ALIGNMENT",
+  "ALIGNMENT_BALANCE",
+  "TUNE_UP",
+]);
 const requiredText = z.string().trim().min(1);
 
 export const budgetIdParamsSchema = z.object({
