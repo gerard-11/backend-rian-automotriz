@@ -26,6 +26,7 @@ export const workOrderSelect = {
   grossProfitAmount: true,
   completedAt: true,
   cancelledAt: true,
+  cancelledBy: true,
   createdAt: true,
   updatedAt: true,
   customer: {
@@ -115,6 +116,7 @@ export const createQuickWorkOrder = async (
         advanceAmount: money(input.advanceAmount ?? 0),
         completedAt: status === "COMPLETED" ? new Date() : undefined,
         cancelledAt: status === "CANCELLED" ? new Date() : undefined,
+        cancelledBy: status === "CANCELLED" ? createdBy : undefined,
         totalSaleAmount: totals.totalSaleAmount,
         totalCostAmount: totals.totalCostAmount,
         grossProfitAmount: totals.profitAmount,
@@ -190,6 +192,7 @@ export const getWorkOrderById = async (
 export const updateWorkOrder = async (
   id: string,
   input: UpdateWorkOrderInput,
+  updatedBy?: string,
 ) => {
   return prisma.$transaction(async (tx) => {
     const workOrder = await tx.workOrder.findUnique({
@@ -235,6 +238,12 @@ export const updateWorkOrder = async (
             : input.status === "ACTIVE" || input.status === "COMPLETED"
               ? null
               : undefined,
+        cancelledBy:
+          input.status === "CANCELLED"
+            ? updatedBy
+            : input.status === "ACTIVE" || input.status === "COMPLETED"
+              ? null
+              : undefined,
         totalSaleAmount: totals?.totalSaleAmount,
         totalCostAmount: totals?.totalCostAmount,
         grossProfitAmount: totals?.profitAmount,
@@ -271,12 +280,13 @@ export const completeWorkOrder = async (id: string) => {
       status: "COMPLETED",
       completedAt: new Date(),
       cancelledAt: null,
+      cancelledBy: null,
     },
     select: workOrderSelect,
   });
 };
 
-export const cancelWorkOrder = async (id: string) => {
+export const cancelWorkOrder = async (id: string, cancelledBy?: string) => {
   const workOrder = await getWorkOrderById(id);
 
   if (workOrder.status !== "ACTIVE") {
@@ -288,6 +298,7 @@ export const cancelWorkOrder = async (id: string) => {
     data: {
       status: "CANCELLED",
       cancelledAt: new Date(),
+      cancelledBy,
     },
     select: workOrderSelect,
   });

@@ -51,7 +51,7 @@ export const getById: RequestHandler = async (req, res) => {
 export const update: RequestHandler = async (req, res) => {
   const { id } = workOrderIdParamsSchema.parse(req.params);
   const input = updateWorkOrderSchema.parse(req.body);
-  const workOrder = await updateWorkOrder(id, input);
+  const workOrder = await updateWorkOrder(id, input, req.user!.name);
 
   res.json({ workOrder: presentForRole(workOrder, req.user!.role) });
 };
@@ -65,7 +65,7 @@ export const complete: RequestHandler = async (req, res) => {
 
 export const cancel: RequestHandler = async (req, res) => {
   const { id } = workOrderIdParamsSchema.parse(req.params);
-  const workOrder = await cancelWorkOrder(id);
+  const workOrder = await cancelWorkOrder(id, req.user!.name);
 
   res.json({ workOrder: presentForRole(workOrder, req.user!.role) });
 };
