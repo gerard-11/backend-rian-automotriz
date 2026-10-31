@@ -72,7 +72,7 @@ const quickBudgetVehicleSchema = z.object({
 export const createQuickBudgetSchema = z.object({
   customer: quickBudgetCustomerSchema,
   vehicle: quickBudgetVehicleSchema,
-  diagnosis: requiredText,
+  diagnosis: optionalText,
   notes: optionalText,
   validUntil: optionalDateSchema,
   items: z.array(budgetItemSchema).min(1, "At least one item is required"),
